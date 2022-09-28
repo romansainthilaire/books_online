@@ -4,7 +4,7 @@
 
 Le site web objet du scraping est [*books.toscrape.com*](http://books.toscrape.com/index.html), il s'agit d'une librairie en ligne fictive.
 
-Pour chaque catégorie d'ouvrage, le script créé :
+Pour chaque catégorie d'ouvrage, le script crée :
 - un fichier csv contenant les principales informations des livres (titre, numéro d'itentification, prix, etc.)
 - un dossier contenant les images des couvertures
 
