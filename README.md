@@ -14,7 +14,7 @@ Pour chaque catégorie d'ouvrage, le script crée :
 - installer les packages : pip install -r requirements.txt
 - exécuter le script : python main.py
 
-## Lancer l'application (avec Anaconda) :
+## Lancer l'application (Anaconda) :
 - créer un environnement virtuel : conda create --name [nom]
 - activer l'environnement virtuel : conda activate [nom]
 - installer pip : conda install pip
