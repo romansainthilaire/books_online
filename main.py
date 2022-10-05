@@ -222,12 +222,12 @@ def create_images_folder_by_category(category_url):
     images_folder.mkdir(exist_ok=True)
     all_product_urls = get_all_product_urls_by_category(category_url)
     for product_url in all_product_urls:
-            product_details = get_product_details(product_url)
-            image_url = product_details[-1]
-            image = requests.get(image_url)
-            product_title = product_details[2][:100] # maximum of 100 chars to avoid too file name
-            with open(images_folder / f"{slugify(product_title)}.jpg", "wb") as file:
-                file.write(image.content)
+        product_details = get_product_details(product_url)
+        image_url = product_details[-1]
+        image = requests.get(image_url)
+        product_title = product_details[2][:100] # maximum of 100 chars to avoid too file name
+        with open(images_folder / f"{slugify(product_title)}.jpg", "wb") as file:
+            file.write(image.content)
 
 
 if __name__ == "__main__":
