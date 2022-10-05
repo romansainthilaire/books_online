@@ -18,106 +18,97 @@ def get_soup(url):
     result = requests.get(url)
     return bs4.BeautifulSoup(result.text, "lxml")
 
-def get_universal_product_code(product_url):
+def get_universal_product_code(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: universal product code (upc)
     """
-    soup = get_soup(product_url)
-    return soup.select("td")[0].text
+    return product_page_soup.select("td")[0].text
 
-def get_product_title(product_url):
+def get_product_title(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: product title
     """
-    soup = get_soup(product_url)
-    return soup.select("h1")[0].text
+    return product_page_soup.select("h1")[0].text
 
-def get_product_price_including_tax(product_url):
+def get_product_price_including_tax(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: product price including tax
     """
-    soup = get_soup(product_url)
-    return soup.select("td")[3].text[1:]
+    return product_page_soup.select("td")[3].text[1:]
 
-def get_product_price_excluding_tax(product_url):
+def get_product_price_excluding_tax(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: product price excluding tax
     """
-    soup = get_soup(product_url)
-    return soup.select("td")[2].text[1:]
+    return product_page_soup.select("td")[2].text[1:]
 
-def get_product_number_available(product_url):
+def get_product_number_available(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: number of products available
     """
-    soup = get_soup(product_url)
-    return re.findall(r"\d+", soup.select("td")[5].text)[0]
+    return re.findall(r"\d+", product_page_soup.select("td")[5].text)[0]
 
-def get_product_description(product_url):
+def get_product_description(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: description of the product
     """
-    soup = get_soup(product_url)
-    return soup.select("p")[3].text
+    return product_page_soup.select("p")[3].text
 
-def get_product_category(product_url):
+def get_product_category(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: category of the product
     """
-    soup = get_soup(product_url)
-    return soup.select(".breadcrumb > li")[2].text[1:-1]
+    return product_page_soup.select(".breadcrumb > li")[2].text[1:-1]
 
-def get_product_review_rating(product_url):
+def get_product_review_rating(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: review rating of the product
     """
-    soup = get_soup(product_url)
-    rating_class = soup.select("p")[2].attrs["class"][1]
+    rating_class = product_page_soup.select("p")[2].attrs["class"][1]
     return w2n.word_to_num(rating_class)
 
-def get_product_image_url(product_url):
+def get_product_image_url(product_page_soup):
     """
     Args:
-        product_url (str): url of the product
+        product_page_soup (BeautifulSoup): parse tree of the product page 
 
     Returns:
         str: url of the product image
     """
-    soup = get_soup(product_url)
     base_url = "https://books.toscrape.com"
-    return  base_url + str(soup.select("img")[0]["src"][5:])
+    return  base_url + str(product_page_soup.select("img")[0]["src"][5:])
 
 def get_product_details(product_url):
     """
@@ -127,17 +118,18 @@ def get_product_details(product_url):
     Returns:
         List[str]: list of all the product details
     """
+    product_page_soup = get_soup(product_url)
     return [
         product_url,
-        get_universal_product_code(product_url),
-        get_product_title(product_url),
-        get_product_price_including_tax(product_url),
-        get_product_price_excluding_tax(product_url),
-        get_product_number_available(product_url),
-        get_product_description(product_url),
-        get_product_category(product_url),
-        get_product_review_rating(product_url),
-        get_product_image_url(product_url)
+        get_universal_product_code(product_page_soup),
+        get_product_title(product_page_soup),
+        get_product_price_including_tax(product_page_soup),
+        get_product_price_excluding_tax(product_page_soup),
+        get_product_number_available(product_page_soup),
+        get_product_description(product_page_soup),
+        get_product_category(product_page_soup),
+        get_product_review_rating(product_page_soup),
+        get_product_image_url(product_page_soup)
     ]
 
 def get_all_category_urls():
@@ -157,7 +149,7 @@ def get_all_product_urls_by_category(category_url):
         category_url (str): url of the category
 
     Returns:
-        List[str]: product urls
+        List[str]: all product urls of the category
     """
     soup = get_soup(category_url)
     all_product_urls = []
@@ -174,18 +166,17 @@ def get_all_product_urls_by_category(category_url):
         soup = get_soup(category_url)
     return all_product_urls
 
-def create_csv_file_by_category(category_url):
+def create_csv_file_by_category(category_name, category_product_urls):
     """Creates a csv file for a specific category.
        The csv file is created in a sub-folder called 'data' in the same folder as this python script.
        The name of the csv file is the same as the name of the category.
 
     Args:
-        category_url (str): url of the category
+        category_name (str): name of the category
+        category_product_urls (List[str]): all product urls of the category
     """
     data_folder = Path(__file__).parent / "data"
     data_folder.mkdir(exist_ok=True)
-    soup = get_soup(category_url)
-    category_name = soup.select(".breadcrumb > li")[2].text
     with open(data_folder / f"{slugify(category_name)}.csv", mode="w", newline="", encoding="utf-8") as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=";")
         headlines = [
@@ -201,27 +192,24 @@ def create_csv_file_by_category(category_url):
             "image_url"
             ]
         csv_writer.writerow(headlines)
-        all_product_urls = get_all_product_urls_by_category(category_url)
-        for product_url in all_product_urls:
+        for product_url in category_product_urls:
             product_details = get_product_details(product_url)
             csv_writer.writerow(product_details)
 
-def create_images_folder_by_category(category_url):
+def create_images_folder_by_category(category_name, category_product_urls):
     """Creates a folder containing the images of all the products of a specific category.
        The images folder is created in a sub-folder called 'data' in the same folder as this python script.
        The images folder name is the same as the category name. 
 
     Args:
-        category_url (str): url of the category
+        category_name (str): name of the category
+        category_product_urls (List[str]): all product urls of the category
     """
     data_folder = Path(__file__).parent / "data"
     data_folder.mkdir(exist_ok=True)
-    soup = get_soup(category_url)
-    category_name = soup.select(".breadcrumb > li")[2].text
     images_folder = data_folder / slugify(category_name)
     images_folder.mkdir(exist_ok=True)
-    all_product_urls = get_all_product_urls_by_category(category_url)
-    for product_url in all_product_urls:
+    for product_url in category_product_urls:
         product_details = get_product_details(product_url)
         image_url = product_details[-1]
         image = requests.get(image_url)
@@ -235,9 +223,9 @@ if __name__ == "__main__":
     for category_url in get_all_category_urls():
         soup = get_soup(category_url)
         category_name = soup.select(".breadcrumb > li")[2].text
-        all_product_urls = get_all_product_urls_by_category(category_url)
-        print(f"Scraping category '{category_name}' ({len(all_product_urls)} products) :")
+        category_product_urls = get_all_product_urls_by_category(category_url)
+        print(f"Scraping category '{category_name}' ({len(category_product_urls)} products) :")
         print("→ Creating csv file...")
-        create_csv_file_by_category(category_url)
+        create_csv_file_by_category(category_name, category_product_urls)
         print("→ Downloading images...")
-        create_images_folder_by_category(category_url)
+        create_images_folder_by_category(category_name, category_product_urls)
