@@ -18,6 +18,7 @@ def get_soup(url):
     result = requests.get(url)
     return bs4.BeautifulSoup(result.text, "lxml")
 
+
 def get_universal_product_code(product_page_soup):
     """
     Args:
@@ -27,6 +28,7 @@ def get_universal_product_code(product_page_soup):
         str: universal product code (upc)
     """
     return product_page_soup.select("td")[0].text
+
 
 def get_product_title(product_page_soup):
     """
@@ -38,6 +40,7 @@ def get_product_title(product_page_soup):
     """
     return product_page_soup.select("h1")[0].text
 
+
 def get_product_price_including_tax(product_page_soup):
     """
     Args:
@@ -47,6 +50,7 @@ def get_product_price_including_tax(product_page_soup):
         str: product price including tax
     """
     return product_page_soup.select("td")[3].text[1:]
+
 
 def get_product_price_excluding_tax(product_page_soup):
     """
@@ -58,6 +62,7 @@ def get_product_price_excluding_tax(product_page_soup):
     """
     return product_page_soup.select("td")[2].text[1:]
 
+
 def get_product_number_available(product_page_soup):
     """
     Args:
@@ -67,6 +72,7 @@ def get_product_number_available(product_page_soup):
         str: number of products available
     """
     return re.findall(r"\d+", product_page_soup.select("td")[5].text)[0]
+
 
 def get_product_description(product_page_soup):
     """
@@ -78,6 +84,7 @@ def get_product_description(product_page_soup):
     """
     return product_page_soup.select("p")[3].text
 
+
 def get_product_category(product_page_soup):
     """
     Args:
@@ -87,6 +94,7 @@ def get_product_category(product_page_soup):
         str: category of the product
     """
     return product_page_soup.select(".breadcrumb > li")[2].text[1:-1]
+
 
 def get_product_review_rating(product_page_soup):
     """
@@ -99,6 +107,7 @@ def get_product_review_rating(product_page_soup):
     rating_class = product_page_soup.select("p")[2].attrs["class"][1]
     return w2n.word_to_num(rating_class)
 
+
 def get_product_image_url(product_page_soup):
     """
     Args:
@@ -108,7 +117,8 @@ def get_product_image_url(product_page_soup):
         str: url of the product image
     """
     base_url = "https://books.toscrape.com"
-    return  base_url + str(product_page_soup.select("img")[0]["src"][5:])
+    return base_url + str(product_page_soup.select("img")[0]["src"][5:])
+
 
 def get_product_details(product_url):
     """
@@ -132,6 +142,7 @@ def get_product_details(product_url):
         get_product_image_url(product_page_soup)
     ]
 
+
 def get_all_category_urls():
     """Returns the urls of all the categories
 
@@ -141,6 +152,7 @@ def get_all_category_urls():
     soup = get_soup("https://books.toscrape.com/")
     base_url = "https://books.toscrape.com/"
     return [base_url + str(a["href"]) for a in soup.select(".nav.nav-list a")][1:]
+
 
 def get_all_product_urls_by_category(category_url):
     """Returns the urls of all the products for a specific category
@@ -165,6 +177,7 @@ def get_all_product_urls_by_category(category_url):
         category_url = f"{category_url[:-11]}/page-{n}.html"
         soup = get_soup(category_url)
     return all_product_urls
+
 
 def create_csv_file_by_category(category_name, category_product_urls):
     """Creates a csv file for a specific category.
@@ -196,6 +209,7 @@ def create_csv_file_by_category(category_name, category_product_urls):
             product_details = get_product_details(product_url)
             csv_writer.writerow(product_details)
 
+
 def create_images_folder_by_category(category_name, category_product_urls):
     """Creates a folder containing the images of all the products of a specific category.
        The images folder is created in a sub-folder called 'data' in the same folder as this python script.
@@ -213,7 +227,7 @@ def create_images_folder_by_category(category_name, category_product_urls):
         product_details = get_product_details(product_url)
         image_url = product_details[-1]
         image = requests.get(image_url)
-        product_title = product_details[2][:100] # maximum of 100 chars to avoid too file name
+        product_title = product_details[2][:100]  # maximum of 100 chars to avoid too long file name
         with open(images_folder / f"{slugify(product_title)}.jpg", "wb") as file:
             file.write(image.content)
 
