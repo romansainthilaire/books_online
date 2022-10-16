@@ -1,10 +1,11 @@
 from pathlib import Path
+import re
+import csv
+
 import requests
 import bs4
-import re
 from word2number import w2n
 from slugify import slugify
-import csv
 
 
 def get_soup(url):
