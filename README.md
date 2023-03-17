@@ -1,5 +1,7 @@
 # Books Online
 
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+
  Ce projet a été réalisé dans le cadre de la formation OpenClassrooms *Développeur d'application - Python*.
 
 ## Présentation de l'application
